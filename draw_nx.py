@@ -39,7 +39,8 @@ def build_figure(edges, only_modelling=False, show=False):
     G_new = nx.DiGraph()
     G_new.add_edges_from(edge_width)
 
-    pos = nx.spring_layout(G_new, k=1, iterations=10)
+    pos = nx.circular_layout(G_new)
+    #pos = nx.spring_layout(G_new, k=1, iterations=10, seed=1)
     nx.draw(G_new, pos)
 
     width = [max(1, G_new[u][v]['width']/WIDTH_SCALING_FACTOR) for u, v in G_new.edges()]
