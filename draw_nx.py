@@ -21,7 +21,7 @@ def build_simple_figure(edges):
     plt.show()
 
 
-def build_figure(edges, show=False):
+def build_figure(edges, only_modelling=False, show=False):
     # to avoid lines getting to big, we apply a factor to the width of the edges
     # if edges become too thick, increase this factor
     WIDTH_SCALING_FACTOR = 3
@@ -29,7 +29,8 @@ def build_figure(edges, show=False):
     G = nx.MultiDiGraph(directed=True)
 
     for edge in edges:
-        G.add_edge(edge.node_in, edge.node_out)
+        if not only_modelling or (only_modelling and str(edge.node_in).isnumeric() and str(edge.node_out).isnumeric()):
+            G.add_edge(edge.node_in, edge.node_out)
 
     # see https://stackoverflow.com/a/58259281
     width_dict = Counter(G.edges())
@@ -50,7 +51,7 @@ def build_figure(edges, show=False):
     nx.draw_networkx_labels(G, pos, font_size=8)
     nx.draw_networkx_nodes(G, pos, node_size=200, node_color='lightblue')
 
-    plt.savefig("network.pdf")
+    plt.savefig("network%s.pdf" % '_only_modelling' if only_modelling else '')
 
     print("Created network.pdf; you might open it using e.g. evince network.pdf")
     if show:
@@ -60,3 +61,4 @@ def build_figure(edges, show=False):
 if __name__ == '__main__':
     _, edges, _ = load_data("Schnittstellen.xlsx")
     build_figure(edges, show=True)
+    build_figure(edges, show=True, only_modelling=True)
