@@ -1,7 +1,10 @@
 # hyBit Modellierungsvorhaben Graph
 Python-Skripte zur automatischen Erstellung eines Graphen der hyBit-Modellierungsvorhaben.
 
-![Beispiel](plot.png)
+![Beispiel](examples/plot.png)
+
+Oder auch nur die Modellierungsvorhaben:
+![Beispiel](examples/plot_modelling.png)
 
 ### Idee
 Die Modellierungsvorhaben aus dem Workshop haben diverse Beziehungen untereinander. 
