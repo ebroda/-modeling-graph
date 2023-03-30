@@ -61,8 +61,8 @@ def build_figure(edges, only_modelling=False, show=False):
     edge_labels = dict([((u, v,), d['width']) for u, v, d in G_new.edges(data=True)])
     nx.draw_networkx_edge_labels(G_new, pos, edge_labels=edge_labels, label_pos=0.5, font_size=10)
 
-    node_colors = ['lightgreen' if is_mv(lbl) else 'lightblue' for lbl, _ in G.nodes.items()]
     nx.draw_networkx_labels(G_new, pos, font_size=8)
+    node_colors = ['lightgreen' if is_mv(lbl) else 'lightblue' for lbl, _ in G_new.nodes.items()]
     nx.draw_networkx_nodes(G_new, pos, node_size=200, node_color=node_colors)
 
     filename = "network%s.pdf" % ('_only_modelling' if only_modelling else '')
