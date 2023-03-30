@@ -3,7 +3,11 @@ from collections import Counter
 import networkx as nx
 from matplotlib import pyplot as plt
 
+from hybit_graph.classes import Node
 from hybit_graph.functions import load_data
+
+# Die Nummer des letzten Modellierungsvorhabens
+MAX_MODELING_PROPOSAL_NO = 22
 
 
 def build_simple_figure(edges):
@@ -21,6 +25,14 @@ def build_simple_figure(edges):
     plt.show()
 
 
+# Check if a given value is the one of a "Modellierungsvorhaben"
+def is_mv(value):
+    if isinstance(value, Node):
+        value = value.id
+
+    return str(value).isnumeric() and 1 <= int(value) <= MAX_MODELING_PROPOSAL_NO
+
+
 def build_figure(edges, only_modelling=False, show=False):
     # to avoid lines getting to big, we apply a factor to the width of the edges
     # if edges become too thick, increase this factor
@@ -29,7 +41,7 @@ def build_figure(edges, only_modelling=False, show=False):
     G = nx.MultiDiGraph(directed=True)
 
     for edge in edges:
-        if not only_modelling or (only_modelling and str(edge.node_in).isnumeric() and str(edge.node_out).isnumeric()):
+        if not only_modelling or (only_modelling and is_mv(edge.node_in) and is_mv(edge.node_out)):
             G.add_edge(edge.node_in, edge.node_out)
 
     # see https://stackoverflow.com/a/58259281
@@ -40,21 +52,23 @@ def build_figure(edges, only_modelling=False, show=False):
     G_new.add_edges_from(edge_width)
 
     pos = nx.circular_layout(G_new)
-    #pos = nx.spring_layout(G_new, k=1, iterations=10, seed=1)
-    nx.draw(G_new, pos)
+    # pos = nx.spring_layout(G_new, k=1, iterations=10, seed=1)
+    # nx.draw(G_new, pos)
 
-    width = [max(1, G_new[u][v]['width']/WIDTH_SCALING_FACTOR) for u, v in G_new.edges()]
+    width = [max(1, G_new[u][v]['width'] / WIDTH_SCALING_FACTOR) for u, v in G_new.edges()]
     nx.draw_networkx_edges(G_new, pos, width=width)
 
     edge_labels = dict([((u, v,), d['width']) for u, v, d in G_new.edges(data=True)])
     nx.draw_networkx_edge_labels(G_new, pos, edge_labels=edge_labels, label_pos=0.5, font_size=10)
 
-    nx.draw_networkx_labels(G, pos, font_size=8)
-    nx.draw_networkx_nodes(G, pos, node_size=200, node_color='lightblue')
+    node_colors = ['lightgreen' if is_mv(lbl) else 'lightblue' for lbl, _ in G.nodes.items()]
+    nx.draw_networkx_labels(G_new, pos, font_size=8)
+    nx.draw_networkx_nodes(G_new, pos, node_size=200, node_color=node_colors)
 
-    plt.savefig("network%s.pdf" % '_only_modelling' if only_modelling else '')
+    filename = "network%s.pdf" % ('_only_modelling' if only_modelling else '')
+    plt.savefig(filename)
 
-    print("Created network.pdf; you might open it using e.g. evince network.pdf")
+    print("Created %s; you might open it using e.g. evince %s" % (filename, filename))
     if show:
         plt.show()
 
