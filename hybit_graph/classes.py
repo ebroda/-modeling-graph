@@ -4,12 +4,18 @@ class Node:
     edges_out = []
 
     def __init__(self, id):
-        self.id = id
+        self.id = str(id)
         self.edges_out = []
         self.edges_in = []
 
     def __repr__(self):
         return self.id
+    
+    def __int__(self):
+        if self.id.isnumeric():
+            return int(self.id)
+        else:
+            return -1
 
     def node_info(self):
         return '%s (%d in, %d out)' % (self.id, len(self.edges_in), len(self.edges_out))

@@ -1,13 +1,59 @@
 from collections import Counter
-
 import networkx as nx
 from matplotlib import pyplot as plt
-
+import netgraph
 from hybit_graph.classes import Node
-from hybit_graph.functions import load_data
+from hybit_graph.functions import *
+import math
+import numpy as np
 
 # Die Nummer des letzten Modellierungsvorhabens
 MAX_MODELING_PROPOSAL_NO = 22
+
+
+def build_curved_graph(edges): # uses netgraph to draw curved edges 
+    SCALE = 2
+    colors = load_colorcodes(
+        'colorcodes.csv')
+    node_fontdict = {'size': 4}
+    G = nx.DiGraph()
+
+    for edge in edges:
+        if G.has_edge(edge.node_out, edge.node_in):
+            G[edge.node_out][edge.node_in]['weight'] += 1
+        else:
+            G.add_edge(edge.node_out, edge.node_in, weight=1)
+
+
+    node_colors = {n: colors[int(n)] if is_mv(
+        n) else colors[-1] for n in G.nodes}
+    edge_colors = {(s, t): node_colors[s] for s, t in G.edges()}
+
+    weights = [d['weight'] for u, v, d in G.edges(data=True)]
+
+    scaling_factor = SCALE * 2 / max(weights)
+    edge_width = {(u, v): min(SCALE, d['weight']*scaling_factor)
+                  for u, v, d in G.edges(data=True)}
+    edge_list = list(G.edges())
+    fig = plt.figure()
+    netgraph.Graph(
+        G,
+        origin=(0,0),
+        scale=(SCALE,SCALE),
+        node_layout=netgraph.get_fruchterman_reingold_layout(edge_list, origin=(0,0), scale=(SCALE,SCALE), edge_weights=edge_width),
+        edge_layout='curved',
+        edge_layout_kwargs={'bundle_parallel_edges':False, 'origin':(0,0), 'scale':(SCALE,SCALE)},
+        arrows=True,
+        node_labels=True,
+        edge_width=edge_width,
+        edge_color=edge_colors,
+        edge_alpha=1.0,
+        node_label_fontdict=node_fontdict,
+        node_color=node_colors,
+        node_size=5
+    )
+    plt.savefig("network.png", dpi=800)
+    plt.show()
 
 
 def build_simple_figure(edges):
@@ -74,6 +120,7 @@ def build_figure(edges, only_modelling=False, show=False):
 
 
 if __name__ == '__main__':
-    _, edges, _ = load_data("Schnittstellen.xlsx")
-    build_figure(edges, show=True)
-    build_figure(edges, show=True, only_modelling=True)
+    _, edges, _ = load_data_pd('20230331_hyBit_Schnittstellen_Mod-WS_v01.xlsx')
+    build_curved_graph(edges)
+    # build_figure(edges, show=True)
+    # build_figure(edges, show=True, only_modelling=True)
